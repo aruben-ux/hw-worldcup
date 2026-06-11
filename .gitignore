@@ -1,0 +1,9 @@
+# Derived from the source PDF — regenerate with scripts/extract_pages.py + crop_cards.py
+scans/
+crops/
+
+node_modules/
+.next/
+.vercel/
+.env*.local
+__pycache__/
