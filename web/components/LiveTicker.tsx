@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { matchById } from "@/lib/data";
 import { flagUrl } from "@/lib/flags";
+import { liveMinute } from "@/lib/liveMinute";
 import { useResults } from "./useResults";
 
 function Flag({ code }: { code: string }) {
@@ -20,6 +22,11 @@ function Flag({ code }: { code: string }) {
 
 export default function LiveTicker() {
   const { payload } = useResults();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
   const live = (payload?.results ?? []).filter((r) => r.status === "live");
   if (live.length === 0) return null;
 
@@ -45,11 +52,9 @@ export default function LiveTicker() {
               </span>
               <span>{m.away}</span>
               <Flag code={m.away} />
-              {r.minute && (
-                <span className="text-[10px] font-bold text-hw-gold">
-                  {r.minute}&prime;
-                </span>
-              )}
+              <span className="text-[10px] font-bold text-hw-gold">
+                {liveMinute(r, now)}
+              </span>
             </span>
           );
         })}

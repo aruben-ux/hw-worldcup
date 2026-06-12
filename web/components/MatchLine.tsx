@@ -2,6 +2,7 @@
 
 import { flagUrl } from "@/lib/flags";
 import { teams } from "@/lib/data";
+import { liveMinute } from "@/lib/liveMinute";
 import type { Match, MatchResult } from "@/lib/types";
 
 export function TeamLabel({ code, full }: { code: string; full?: boolean }) {
@@ -41,6 +42,6 @@ export function ScoreBadge({ result }: { result: MatchResult | undefined }) {
 
 export function statusNote(result: MatchResult | undefined, match: Match) {
   if (!result || result.status === "scheduled") return match.date.slice(5);
-  if (result.status === "live") return result.minute ? `${result.minute}'` : "live";
+  if (result.status === "live") return liveMinute(result, Date.now());
   return "FT";
 }
