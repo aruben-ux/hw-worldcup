@@ -7,8 +7,7 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "web",
       "port": 3000,
-      "autoPort": true,
-      "env": { "MOCK_RESULTS": "1" }
+      "autoPort": true
     }
   ]
 }

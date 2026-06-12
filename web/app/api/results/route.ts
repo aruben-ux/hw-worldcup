@@ -11,6 +11,7 @@ const API_URL =
 const ALIASES: Record<string, string> = {
   // by TLA
   SAU: "KSA",
+  URY: "URU",
   // by name
   "Korea Republic": "KOR",
   "South Korea": "KOR",
