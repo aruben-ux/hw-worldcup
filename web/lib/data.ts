@@ -6,7 +6,10 @@ import type { Match, Participant } from "./types";
 export const matches: Match[] = matchesJson.matches;
 export const matchById = new Map(matches.map((m) => [m.id, m]));
 
-export const teams = teamsJson as Record<string, { name: string; group: string }>;
+export const teams = teamsJson as Record<
+  string,
+  { name: string; group: string; crest?: string }
+>;
 
 export const participants: Participant[] = picksJson.participants as Participant[];
 

@@ -7,16 +7,22 @@ import type { Match, MatchResult } from "@/lib/types";
 
 export function TeamLabel({ code, full }: { code: string; full?: boolean }) {
   const url = flagUrl(code);
+  const crest = teams[code]?.crest;
   return (
     <span className="inline-flex items-center gap-1.5">
-      {url && (
-        // eslint-disable-next-line @next/next/no-img-element -- tiny external flag icons, next/image overhead not worth it
-        <img
-          src={url}
-          alt=""
-          className="h-3.5 w-auto rounded-[2px] shadow-sm ring-1 ring-black/10"
-          loading="lazy"
-        />
+      {crest ? (
+        // eslint-disable-next-line @next/next/no-img-element -- tiny external crest/flag icons, next/image overhead not worth it
+        <img src={crest} alt="" className="h-5 w-5 object-contain" loading="lazy" />
+      ) : (
+        url && (
+          // eslint-disable-next-line @next/next/no-img-element -- tiny external crest/flag icons, next/image overhead not worth it
+          <img
+            src={url}
+            alt=""
+            className="h-3.5 w-auto rounded-[2px] shadow-sm ring-1 ring-black/10"
+            loading="lazy"
+          />
+        )
       )}
       <span>{full ? (teams[code]?.name ?? code) : code}</span>
     </span>
