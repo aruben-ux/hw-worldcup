@@ -22,11 +22,11 @@ export default function MatchesBoard() {
   return (
     <div className="space-y-5">
       {matchesByDate.map(([date, dayMatches]) => (
-        <section key={date} className="rounded-xl bg-white p-3 shadow">
-          <h3 className="mb-2 text-sm font-bold text-slate-700">
+        <section key={date} className="rounded-lg bg-white p-3 shadow">
+          <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-hw-black">
             {DATE_FMT.format(new Date(`${date}T12:00:00Z`))}
           </h3>
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-hw-khaki/25">
             {dayMatches.map((m) => {
               const r = byMatch.get(m.id);
               const dist = pickDistribution(participants, m.id);
@@ -44,30 +44,30 @@ export default function MatchesBoard() {
                     <span className="justify-self-start">
                       <TeamLabel code={m.away} full />
                     </span>
-                    <span className="w-12 text-right text-xs text-slate-400">
+                    <span className="w-12 text-right text-xs text-hw-gray/70">
                       {statusNote(r, m)}
                     </span>
                   </div>
-                  <div className="mt-1.5 flex items-center gap-2 text-[11px] text-slate-500">
+                  <div className="mt-1.5 flex items-center gap-2 text-[11px] text-hw-gray">
                     <span className="w-10 shrink-0 text-right tabular-nums">
                       {dist.home} {m.home}
                     </span>
-                    <div className="flex h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                    <div className="flex h-2 flex-1 overflow-hidden rounded-full bg-hw-cream">
                       <div
                         className={
-                          outcome === "home" ? "bg-green-500" : "bg-blue-400"
+                          outcome === "home" ? "bg-hw-green" : "bg-hw-blue"
                         }
                         style={{ width: seg(dist.home) }}
                       />
                       <div
                         className={
-                          outcome === "draw" ? "bg-green-500" : "bg-slate-300"
+                          outcome === "draw" ? "bg-hw-green" : "bg-hw-khaki"
                         }
                         style={{ width: seg(dist.draw) }}
                       />
                       <div
                         className={
-                          outcome === "away" ? "bg-green-500" : "bg-orange-400"
+                          outcome === "away" ? "bg-hw-green" : "bg-hw-orange"
                         }
                         style={{ width: seg(dist.away) }}
                       />
@@ -77,7 +77,7 @@ export default function MatchesBoard() {
                     </span>
                   </div>
                   {dist.draw > 0 && (
-                    <div className="mt-0.5 text-center text-[11px] text-slate-400">
+                    <div className="mt-0.5 text-center text-[11px] text-hw-gray/70">
                       {dist.draw} picked draw
                       {dist.none > 0 && ` · ${dist.none} no pick`}
                     </div>

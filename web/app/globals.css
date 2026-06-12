@@ -1,10 +1,18 @@
 @import "tailwindcss";
 
-body {
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+/* Harvard-Westlake brand tokens (from learn.hw.com) */
+@theme {
+  --color-hw-red: #da0016;
+  --color-hw-gold: #eda300;
+  --color-hw-black: #000000;
+  --color-hw-gray: #4d4d4d;
+  --color-hw-blue: #539adc;
+  --color-hw-green: #9cca00;
+  --color-hw-khaki: #bfc299;
+  --color-hw-orange: #fa7300;
+  --color-hw-cream: #f2f0ec;
+
+  --font-sans:
+    var(--font-source-sans), "Source Sans Pro", Arial, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }

@@ -39,12 +39,12 @@ function verdict(
 }
 
 const VERDICT_STYLE: Record<string, string> = {
-  correct: "bg-green-100 text-green-800",
-  wrong: "bg-red-100 text-red-700 line-through",
-  "live-correct": "bg-green-50 text-green-700 ring-1 ring-green-300",
-  "live-wrong": "bg-amber-50 text-amber-700",
-  pending: "bg-slate-100 text-slate-600",
-  void: "bg-slate-50 text-slate-400",
+  correct: "bg-hw-green/25 text-green-900",
+  wrong: "bg-hw-red/10 text-hw-red line-through",
+  "live-correct": "bg-hw-green/15 text-green-800 ring-1 ring-hw-green",
+  "live-wrong": "bg-hw-gold/15 text-hw-orange",
+  pending: "bg-hw-cream text-hw-gray",
+  void: "bg-hw-cream/60 text-hw-gray/60",
 };
 
 export default function PlayerDetail({ playerId }: { playerId: string }) {
@@ -54,8 +54,11 @@ export default function PlayerDetail({ playerId }: { playerId: string }) {
   const player = participants.find((p) => p.id === playerId);
   if (!player) {
     return (
-      <p className="text-slate-600">
-        Unknown player. <Link href="/" className="underline">Back to leaderboard</Link>
+      <p className="text-hw-gray">
+        Unknown player.{" "}
+        <Link href="/" className="text-hw-red underline">
+          Back to leaderboard
+        </Link>
       </p>
     );
   }
@@ -66,23 +69,26 @@ export default function PlayerDetail({ playerId }: { playerId: string }) {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-bold text-slate-800">{player.name}</h2>
-        <div className="text-sm text-slate-500">
-          rank <b className="text-slate-800">#{standing.rank}</b> &middot;{" "}
-          <b className="text-slate-800">{standing.points}</b> pts
+        <h2 className="text-xl font-black text-hw-black">{player.name}</h2>
+        <div className="text-sm text-hw-gray">
+          rank <b className="text-hw-black">#{standing.rank}</b> &middot;{" "}
+          <b className="text-hw-black">{standing.points}</b> pts
           {standing.livePoints > 0 && (
-            <span className="text-red-600"> +{standing.livePoints} live</span>
+            <span className="font-bold text-hw-red">
+              {" "}
+              +{standing.livePoints} live
+            </span>
           )}{" "}
           &middot; max {standing.maxPossible}
         </div>
       </div>
       <div className="space-y-4">
         {matchesByDate.map(([date, dayMatches]) => (
-          <section key={date} className="rounded-xl bg-white p-3 shadow">
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+          <section key={date} className="rounded-lg bg-white p-3 shadow">
+            <h3 className="mb-2 text-xs font-black uppercase tracking-wide text-hw-gray/70">
               {DATE_FMT.format(new Date(`${date}T12:00:00Z`))}
             </h3>
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-hw-khaki/25">
               {dayMatches.map((m) => {
                 const r = byMatch.get(m.id);
                 const pick = player.picks[m.id];
