@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "worldcup-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "web",
+      "port": 3000,
+      "autoPort": true,
+      "env": { "MOCK_RESULTS": "1" }
+    }
+  ]
+}
