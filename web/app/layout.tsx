@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Source_Sans_3 } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import LiveTicker from "@/components/LiveTicker";
 import { POT, participants } from "@/lib/data";
 import "./globals.css";
@@ -51,6 +52,7 @@ export default function RootLayout({
         </header>
         <LiveTicker />
         <main className="mx-auto max-w-3xl px-3 py-5 sm:px-4">{children}</main>
+        <Analytics />
       </body>
     </html>
   );
