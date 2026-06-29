@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { knockoutParticipants, knockoutRounds, teams } from "@/lib/data";
 import { flagUrl } from "@/lib/flags";
 import {
   buildBracket,
+  computeKnockoutStandings,
   currentKnockoutRound,
   slotPickers,
   type BracketSlot,
@@ -12,6 +14,9 @@ import {
 import { liveMinute } from "@/lib/liveMinute";
 import type { RoundKey } from "@/lib/types";
 import { useResults } from "./useResults";
+
+const byKickoff = (a: BracketSlot, b: BracketSlot) =>
+  a.match.utcDate.localeCompare(b.match.utcDate) || a.match.slot - b.match.slot;
 
 const COLUMNS: RoundKey[] = ["R32", "R16", "QF", "SF", "F"];
 
@@ -163,7 +168,11 @@ export default function Bracket() {
   const { payload } = useResults();
   const [tip, setTip] = useState<Tip | null>(null);
   const [view, setView] = useState<View | null>(null);
-  const slots = buildBracket(payload?.results ?? []);
+  const results = payload?.results ?? [];
+  const slots = buildBracket(results);
+  const standings = computeKnockoutStandings(knockoutParticipants, results);
+  const top5 = standings.slice(0, 5);
+  const anyLive = results.some((r) => r.status === "live");
   const matchesByRound = (rk: RoundKey) =>
     [...slots.values()]
       .filter((s) => s.match.round === rk)
@@ -175,10 +184,49 @@ export default function Bracket() {
     knockoutRounds.find((r) => r.key === rk)?.points ?? 0;
 
   // Default to the current round until the user taps a tab.
-  const active: View = view ?? currentKnockoutRound(payload?.results ?? []);
+  const active: View = view ?? currentKnockoutRound(results);
 
   return (
     <div>
+      {top5.length > 0 && (
+        <section className="mb-4 overflow-hidden rounded-lg bg-white shadow">
+          <div className="flex items-center justify-between bg-hw-black px-3 py-2">
+            <h2 className="text-xs font-black uppercase tracking-wide text-white">
+              Leaderboard — Top 5
+            </h2>
+            <Link
+              href="/leaderboard"
+              className="text-xs font-semibold text-hw-gold hover:underline"
+            >
+              Full standings →
+            </Link>
+          </div>
+          <ol>
+            {top5.map((row) => (
+              <li
+                key={row.id}
+                className="flex items-center gap-2 border-t border-hw-khaki/30 px-3 py-1.5 text-sm"
+              >
+                <span className="w-5 text-center font-bold text-hw-gray/70">
+                  {row.rank}
+                </span>
+                <Link
+                  href={`/bracket/${row.id}`}
+                  className="flex-1 truncate font-semibold text-hw-black hover:text-hw-red hover:underline"
+                >
+                  {row.name}
+                </Link>
+                {anyLive && row.livePoints > 0 && (
+                  <span className="text-xs font-bold text-hw-red">
+                    +{row.livePoints}
+                  </span>
+                )}
+                <span className="font-black tabular-nums">{row.points}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
       <h1 className="mb-1 text-xl font-black uppercase tracking-tight text-hw-black">
         Knockout Bracket
       </h1>
@@ -236,7 +284,7 @@ export default function Bracket() {
             <span className="ml-1 text-hw-gold">{pointsFor(active)}p per pick</span>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {matchesByRound(active).map((slot) => (
+            {[...matchesByRound(active)].sort(byKickoff).map((slot) => (
               <MatchCard key={slot.match.id} slot={slot} now={now} onTip={setTip} />
             ))}
           </div>
