@@ -25,8 +25,8 @@ export default function KnockoutLeaderboard() {
           .
         </p>
         <p className="mt-3 text-xs text-hw-gray/70">
-          Scoring: R32 = 1 · R16 = 2 · QF = 4 · SF = 8 · Final = 16 points per
-          correct pick.
+          Scoring: R32 = 1 · R16 = 2 · QF = 3 · finalist = 5 · champion = 7,
+          plus third place (4 per team, 6 for the winner).
         </p>
       </div>
     );
@@ -89,9 +89,10 @@ export default function KnockoutLeaderboard() {
         </table>
       </div>
       <p className="mt-3 text-xs text-hw-gray/80">
-        Round-weighted scoring (R32 = 1 … Final = 16). A pick scores only if that
-        team wins that bracket match. Max is an optimistic ceiling assuming every
-        still-alive pick comes through.
+        Sheet scoring: R32 = 1, R16 = 2, QF = 3, finalist = 5, champion = 7;
+        third place = 4 per correct team and 6 for the winner. A pick scores only
+        if that team wins that bracket match. Max is an optimistic ceiling
+        assuming every still-alive pick comes through.
       </p>
     </div>
   );

@@ -68,7 +68,6 @@ describe("computeKnockoutStandings", () => {
     const bo = rows.find((r) => r.id === "b")!;
     expect(ann.points).toBe(1); // R32 = 1, correct
     expect(bo.points).toBe(0); // wrong
-    expect(bo.wrong).toBe(1);
   });
 
   it("drops max-possible for picks whose team is eliminated", () => {
@@ -100,11 +99,34 @@ describe("computeKnockoutStandings", () => {
     ]);
   });
 
-  it("third-place match is not scored", () => {
+  it("scores the third-place winner (6) and participants (4 each)", () => {
     expect(knockoutById.get("3P-1")).toBeTruthy();
+    // Semifinals decided: SF-1 ARG beat BRA (loser BRA), SF-2 FRA beat
+    // ESP (loser ESP). Third-place match: BRA beat ESP.
+    const results = [
+      fin("SF-1", "ARG", "BRA", "ARG"),
+      fin("SF-2", "FRA", "ESP", "FRA"),
+      fin("3P-1", "BRA", "ESP", "BRA"),
+    ];
     const rows = computeKnockoutStandings(
-      [{ id: "a", name: "Ann", picks: { "3P-1": "BRA" } }],
-      [fin("3P-1", "BRA", "FRA", "BRA")],
+      [
+        // Both participants right (BRA, ESP = the SF losers) + winner BRA
+        { id: "a", name: "Ann", picks: { "3P-A": "BRA", "3P-B": "ESP", "3P-1": "BRA" } },
+        // One participant right, winner wrong
+        { id: "b", name: "Bo", picks: { "3P-A": "BRA", "3P-B": "GER", "3P-1": "ESP" } },
+      ],
+      results,
+    );
+    const ann = rows.find((r) => r.id === "a")!;
+    const bo = rows.find((r) => r.id === "b")!;
+    expect(ann.points).toBe(4 + 4 + 6); // both participants + winner
+    expect(bo.points).toBe(4); // one participant only
+  });
+
+  it("treats blank/unresolved picks as no pick (no points, no max)", () => {
+    const rows = computeKnockoutStandings(
+      [{ id: "a", name: "Ann", picks: { "R32-1": "blank", "F-1": "UNRESOLVED" } }],
+      [],
     );
     expect(rows[0].points).toBe(0);
     expect(rows[0].maxPossible).toBe(0);

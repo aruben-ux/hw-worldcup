@@ -21,13 +21,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ALIASES = {"URY": "URU", "SAU": "KSA"}
 
+# Points per correct pick, from the printed sheet ("Points possible in
+# RED"): R32=1, R16=2, QF=3, finalist(SF winner)=5, champion=7. The
+# third-place match winner is worth 6; correctly predicting each of the
+# two third-place participants is worth 4 (scored in lib/knockout.ts via
+# THIRD_PLACE_PARTICIPANT_POINTS, not a round value here).
 ROUNDS = [
     {"key": "R32", "name": "Round of 32", "stage": "LAST_32", "points": 1, "count": 16},
     {"key": "R16", "name": "Round of 16", "stage": "LAST_16", "points": 2, "count": 8},
-    {"key": "QF", "name": "Quarter-finals", "stage": "QUARTER_FINALS", "points": 4, "count": 4},
-    {"key": "SF", "name": "Semi-finals", "stage": "SEMI_FINALS", "points": 8, "count": 2},
-    {"key": "F", "name": "Final", "stage": "FINAL", "points": 16, "count": 1},
-    {"key": "3P", "name": "Third place", "stage": "THIRD_PLACE", "points": 0, "count": 1},
+    {"key": "QF", "name": "Quarter-finals", "stage": "QUARTER_FINALS", "points": 3, "count": 4},
+    {"key": "SF", "name": "Semi-finals", "stage": "SEMI_FINALS", "points": 5, "count": 2},
+    {"key": "F", "name": "Final", "stage": "FINAL", "points": 7, "count": 1},
+    {"key": "3P", "name": "Third place", "stage": "THIRD_PLACE", "points": 6, "count": 1},
 ]
 NEXT = {"R32": "R16", "R16": "QF", "QF": "SF", "SF": "F"}
 

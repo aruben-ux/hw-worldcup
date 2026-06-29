@@ -14,22 +14,22 @@
     {
       "key": "QF",
       "name": "Quarter-finals",
-      "points": 4
+      "points": 3
     },
     {
       "key": "SF",
       "name": "Semi-finals",
-      "points": 8
+      "points": 5
     },
     {
       "key": "F",
       "name": "Final",
-      "points": 16
+      "points": 7
     },
     {
       "key": "3P",
       "name": "Third place",
-      "points": 0
+      "points": 6
     }
   ],
   "matches": [

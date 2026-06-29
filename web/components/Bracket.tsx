@@ -108,8 +108,8 @@ export default function Bracket() {
         Knockout Bracket
       </h1>
       <p className="mb-4 text-xs text-hw-gray">
-        Live results. Pick points per round: R32 = 1, R16 = 2, QF = 4, SF = 8,
-        Final = 16.
+        Live results. Pick points: R32 = 1, R16 = 2, QF = 3, finalist = 5,
+        champion = 7; third place = 4 per team + 6 for the winner.
       </p>
       <div className="overflow-x-auto pb-3">
         <div className="flex min-w-max gap-3">

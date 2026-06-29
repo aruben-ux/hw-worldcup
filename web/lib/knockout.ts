@@ -86,12 +86,28 @@ function eliminatedTeams(slots: Map<string, BracketSlot>): Set<string> {
   return out;
 }
 
+/** Points for correctly predicting each of the two third-place-match
+ * participants (the semifinal losers). The third-place winner is scored
+ * as the 3P round's points (6). */
+export const THIRD_PLACE_PARTICIPANT_POINTS = 4;
+
+/** A real team pick, or null for blank/unresolved entries. */
+const realPick = (v: string | undefined): string | null =>
+  !v || v === "blank" || v === "UNRESOLVED" ? null : v;
+
+const loserOf = (slot: BracketSlot): string | null => {
+  const res = slot.result;
+  if (!slot.winner || !res) return null;
+  return slot.winner === res.homeCode ? (res.awayCode ?? null) : (res.homeCode ?? null);
+};
+
 /**
- * Round-weighted bracket scoring: a pick scores its round's points only
- * if that team actually wins that specific bracket slot. Live matches
- * contribute provisional points (shown separately). maxPossible is an
- * optimistic bound — counts unfinished slots whose picked team is not
- * yet eliminated.
+ * Bracket scoring with the printed sheet's point values (round points
+ * come from data/knockout.json: R32=1, R16=2, QF=3, SF=5, champion=7,
+ * third-place winner=6) plus 4 points per correctly predicted
+ * third-place participant. A pick scores only if that team wins that
+ * specific bracket slot. Live matches contribute provisional points
+ * (shown separately). maxPossible is an optimistic ceiling.
  */
 export function computeKnockoutStandings(
   participants: KnockoutParticipant[],
@@ -100,20 +116,35 @@ export function computeKnockoutStandings(
   const slots = buildBracket(results);
   const eliminated = eliminatedTeams(slots);
 
+  // Teams knocked out before the semifinals can't reach the third-place
+  // match; semifinal winners (finalists) can't either.
+  const bustedEarly = new Set<string>();
+  for (const slot of slots.values()) {
+    if (["R32", "R16", "QF"].includes(slot.match.round)) {
+      const l = loserOf(slot);
+      if (l) bustedEarly.add(l);
+    }
+  }
+  const sf1 = slots.get("SF-1")!;
+  const sf2 = slots.get("SF-2")!;
+  const finalists = new Set([sf1.winner, sf2.winner].filter(Boolean) as string[]);
+  const sfLosers = [loserOf(sf1), loserOf(sf2)].filter(Boolean) as string[];
+  const sfAllDecided = sf1.winner != null && sf2.winner != null;
+  const tp = slots.get("3P-1");
+
   const rows = participants.map((p) => {
     let points = 0;
     let livePoints = 0;
-    let wrong = 0;
     let pending = 0;
     for (const slot of slots.values()) {
+      if (slot.match.round === "3P") continue; // scored separately below
       const pts = roundPoints.get(slot.match.round) ?? 0;
-      if (pts === 0) continue; // third-place match isn't scored
-      const pick = p.picks[slot.match.id];
+      if (pts === 0) continue;
+      const pick = realPick(p.picks[slot.match.id]);
       if (!pick) continue;
       const res = slot.result;
       if (res?.status === "finished") {
         if (slot.winner && pick === slot.winner) points += pts;
-        else wrong += pts;
       } else if (res?.status === "live") {
         if (!eliminated.has(pick)) pending += pts;
         if (res.winnerCode && res.winnerCode !== "DRAW" && pick === res.winnerCode)
@@ -122,6 +153,47 @@ export function computeKnockoutStandings(
         pending += pts;
       }
     }
+
+    // Third-place participants (4 each): greedily match the two picks
+    // against the actual semifinal losers; otherwise still winnable if
+    // the team could yet drop into the third-place match.
+    const partPicks = [realPick(p.picks["3P-A"]), realPick(p.picks["3P-B"])].filter(
+      Boolean,
+    ) as string[];
+    const pool = [...sfLosers];
+    const PP = THIRD_PLACE_PARTICIPANT_POINTS;
+    for (const pick of partPicks) {
+      const idx = pool.indexOf(pick);
+      if (idx >= 0) {
+        points += PP;
+        pool.splice(idx, 1);
+      } else if (!sfAllDecided && !bustedEarly.has(pick) && !finalists.has(pick)) {
+        pending += PP;
+      }
+    }
+
+    // Third-place winner (6).
+    const tpPick = realPick(p.picks["3P-1"]);
+    if (tpPick && tp) {
+      const tpPts = roundPoints.get("3P") ?? 0;
+      const res = tp.result;
+      if (res?.status === "finished") {
+        if (tp.winner && tpPick === tp.winner) points += tpPts;
+      } else if (res?.status === "live") {
+        const stillIn = sfAllDecided
+          ? sfLosers.includes(tpPick)
+          : !bustedEarly.has(tpPick) && !finalists.has(tpPick);
+        if (stillIn) pending += tpPts;
+        if (res.winnerCode && res.winnerCode !== "DRAW" && tpPick === res.winnerCode)
+          livePoints += tpPts;
+      } else {
+        const stillIn = sfAllDecided
+          ? sfLosers.includes(tpPick)
+          : !bustedEarly.has(tpPick) && !finalists.has(tpPick);
+        if (stillIn) pending += tpPts;
+      }
+    }
+
     return {
       id: p.id,
       name: p.name,
@@ -130,7 +202,7 @@ export function computeKnockoutStandings(
       livePoints,
       maxPossible: points + pending,
       correct: points,
-      wrong,
+      wrong: 0,
       pending,
     };
   });

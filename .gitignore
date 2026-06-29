@@ -1,6 +1,8 @@
-# Derived from the source PDF — regenerate with scripts/extract_pages.py + crop_cards.py
+# Derived from the source PDFs — regenerate with the scripts/ pipeline
 scans/
 crops/
+finals_review.html
+finals_review_img/
 
 node_modules/
 .next/
