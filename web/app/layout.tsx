@@ -3,7 +3,6 @@ import { Source_Sans_3 } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import LiveTicker from "@/components/LiveTicker";
-import { POT, participants } from "@/lib/data";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -37,16 +36,19 @@ export default function RootLayout({
             >
               <span className="text-hw-red">HW</span> World Cup Pool
             </Link>
-            <nav className="flex items-center gap-4 text-sm font-semibold">
+            <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-semibold">
               <Link href="/" className="hover:text-hw-gold">
+                Bracket
+              </Link>
+              <Link href="/leaderboard" className="hover:text-hw-gold">
                 Leaderboard
               </Link>
               <Link href="/matches" className="hover:text-hw-gold">
                 Matches
               </Link>
-              <span className="rounded-md bg-hw-gold px-2.5 py-0.5 text-xs font-black text-hw-black">
-                ${POT} pot · {participants.length} players
-              </span>
+              <Link href="/group-stage" className="text-white/70 hover:text-hw-gold">
+                Group Stage
+              </Link>
             </nav>
           </div>
         </header>

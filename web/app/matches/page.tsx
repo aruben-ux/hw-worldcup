@@ -1,5 +1,5 @@
-import MatchesBoard from "@/components/MatchesBoard";
+import KnockoutSchedule from "@/components/KnockoutSchedule";
 
 export default function MatchesPage() {
-  return <MatchesBoard />;
+  return <KnockoutSchedule />;
 }

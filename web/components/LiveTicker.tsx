@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { matchById } from "@/lib/data";
 import { flagUrl } from "@/lib/flags";
 import { liveMinute } from "@/lib/liveMinute";
 import { useResults } from "./useResults";
 
-function Flag({ code }: { code: string }) {
-  const url = flagUrl(code);
+function Flag({ code }: { code: string | null | undefined }) {
+  const url = code ? flagUrl(code) : null;
   if (!url) return null;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- tiny external flag icons
@@ -37,27 +36,23 @@ export default function LiveTicker() {
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-hw-red" />
           Live
         </span>
-        {live.map((r) => {
-          const m = matchById.get(r.matchId);
-          if (!m) return null;
-          return (
-            <span
-              key={r.matchId}
-              className="flex shrink-0 items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold"
-            >
-              <Flag code={m.home} />
-              <span>{m.home}</span>
-              <span className="rounded bg-hw-red px-1.5 py-0.5 font-black tabular-nums">
-                {r.score ? `${r.score.home}–${r.score.away}` : "0–0"}
-              </span>
-              <span>{m.away}</span>
-              <Flag code={m.away} />
-              <span className="text-[10px] font-bold text-hw-gold">
-                {liveMinute(r, now)}
-              </span>
+        {live.map((r) => (
+          <span
+            key={r.matchId}
+            className="flex shrink-0 items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold"
+          >
+            <Flag code={r.homeCode} />
+            <span>{r.homeCode ?? "?"}</span>
+            <span className="rounded bg-hw-red px-1.5 py-0.5 font-black tabular-nums">
+              {r.score ? `${r.score.home}–${r.score.away}` : "0–0"}
             </span>
-          );
-        })}
+            <span>{r.awayCode ?? "?"}</span>
+            <Flag code={r.awayCode} />
+            <span className="text-[10px] font-bold text-hw-gold">
+              {liveMinute(r, now)}
+            </span>
+          </span>
+        ))}
       </div>
     </div>
   );

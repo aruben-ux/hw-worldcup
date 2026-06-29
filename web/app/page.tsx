@@ -1,5 +1,5 @@
-import Leaderboard from "@/components/Leaderboard";
+import Bracket from "@/components/Bracket";
 
 export default function Home() {
-  return <Leaderboard />;
+  return <Bracket />;
 }

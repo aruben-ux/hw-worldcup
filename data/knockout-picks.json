@@ -1,0 +1,5 @@
+{
+  "comment": "Knockout-pool participants and their full-bracket picks. Each picks map is bracket-slot id (e.g. 'R32-1', 'R16-2', 'F-1') -> predicted winning team code. Populated once the new sheets are collected; empty until then.",
+  "entryFee": 20,
+  "participants": []
+}

@@ -1,0 +1,393 @@
+{
+  "comment": "Knockout bracket structure. Topology derived by build_knockout.py (id-order + ceil rule). home/away are seeds from API build-time state; the site recomputes advancement live from results. points are per correct winner pick in that round.",
+  "rounds": [
+    {
+      "key": "R32",
+      "name": "Round of 32",
+      "points": 1
+    },
+    {
+      "key": "R16",
+      "name": "Round of 16",
+      "points": 2
+    },
+    {
+      "key": "QF",
+      "name": "Quarter-finals",
+      "points": 4
+    },
+    {
+      "key": "SF",
+      "name": "Semi-finals",
+      "points": 8
+    },
+    {
+      "key": "F",
+      "name": "Final",
+      "points": 16
+    },
+    {
+      "key": "3P",
+      "name": "Third place",
+      "points": 0
+    }
+  ],
+  "matches": [
+    {
+      "id": "R32-1",
+      "round": "R32",
+      "slot": 1,
+      "apiMatchId": 537415,
+      "utcDate": "2026-06-29T20:30:00Z",
+      "home": "GER",
+      "away": "PAR",
+      "feedsInto": "R16-1",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-2",
+      "round": "R32",
+      "slot": 2,
+      "apiMatchId": 537416,
+      "utcDate": "2026-06-30T21:00:00Z",
+      "home": "FRA",
+      "away": "SWE",
+      "feedsInto": "R16-1",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-3",
+      "round": "R32",
+      "slot": 3,
+      "apiMatchId": 537417,
+      "utcDate": "2026-06-28T19:00:00Z",
+      "home": "RSA",
+      "away": "CAN",
+      "feedsInto": "R16-2",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-4",
+      "round": "R32",
+      "slot": 4,
+      "apiMatchId": 537418,
+      "utcDate": "2026-06-30T01:00:00Z",
+      "home": "NED",
+      "away": "MAR",
+      "feedsInto": "R16-2",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-5",
+      "round": "R32",
+      "slot": 5,
+      "apiMatchId": 537419,
+      "utcDate": "2026-07-02T23:00:00Z",
+      "home": "POR",
+      "away": "CRO",
+      "feedsInto": "R16-3",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-6",
+      "round": "R32",
+      "slot": 6,
+      "apiMatchId": 537420,
+      "utcDate": "2026-07-02T19:00:00Z",
+      "home": "ESP",
+      "away": "AUT",
+      "feedsInto": "R16-3",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-7",
+      "round": "R32",
+      "slot": 7,
+      "apiMatchId": 537421,
+      "utcDate": "2026-07-02T00:00:00Z",
+      "home": "USA",
+      "away": "BIH",
+      "feedsInto": "R16-4",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-8",
+      "round": "R32",
+      "slot": 8,
+      "apiMatchId": 537422,
+      "utcDate": "2026-07-01T20:00:00Z",
+      "home": "BEL",
+      "away": "SEN",
+      "feedsInto": "R16-4",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-9",
+      "round": "R32",
+      "slot": 9,
+      "apiMatchId": 537423,
+      "utcDate": "2026-06-29T17:00:00Z",
+      "home": "BRA",
+      "away": "JPN",
+      "feedsInto": "R16-5",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-10",
+      "round": "R32",
+      "slot": 10,
+      "apiMatchId": 537424,
+      "utcDate": "2026-06-30T17:00:00Z",
+      "home": "CIV",
+      "away": "NOR",
+      "feedsInto": "R16-5",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-11",
+      "round": "R32",
+      "slot": 11,
+      "apiMatchId": 537425,
+      "utcDate": "2026-07-01T01:00:00Z",
+      "home": "MEX",
+      "away": "ECU",
+      "feedsInto": "R16-6",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-12",
+      "round": "R32",
+      "slot": 12,
+      "apiMatchId": 537426,
+      "utcDate": "2026-07-01T16:00:00Z",
+      "home": "ENG",
+      "away": "COD",
+      "feedsInto": "R16-6",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-13",
+      "round": "R32",
+      "slot": 13,
+      "apiMatchId": 537427,
+      "utcDate": "2026-07-03T22:00:00Z",
+      "home": "ARG",
+      "away": "CPV",
+      "feedsInto": "R16-7",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-14",
+      "round": "R32",
+      "slot": 14,
+      "apiMatchId": 537428,
+      "utcDate": "2026-07-03T18:00:00Z",
+      "home": "AUS",
+      "away": "EGY",
+      "feedsInto": "R16-7",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R32-15",
+      "round": "R32",
+      "slot": 15,
+      "apiMatchId": 537429,
+      "utcDate": "2026-07-03T03:00:00Z",
+      "home": "SUI",
+      "away": "ALG",
+      "feedsInto": "R16-8",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R32-16",
+      "round": "R32",
+      "slot": 16,
+      "apiMatchId": 537430,
+      "utcDate": "2026-07-04T01:30:00Z",
+      "home": "COL",
+      "away": "GHA",
+      "feedsInto": "R16-8",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R16-1",
+      "round": "R16",
+      "slot": 1,
+      "apiMatchId": 537375,
+      "utcDate": "2026-07-04T21:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-1",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R16-2",
+      "round": "R16",
+      "slot": 2,
+      "apiMatchId": 537376,
+      "utcDate": "2026-07-04T17:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-1",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R16-3",
+      "round": "R16",
+      "slot": 3,
+      "apiMatchId": 537377,
+      "utcDate": "2026-07-05T20:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-2",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R16-4",
+      "round": "R16",
+      "slot": 4,
+      "apiMatchId": 537378,
+      "utcDate": "2026-07-06T00:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-2",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R16-5",
+      "round": "R16",
+      "slot": 5,
+      "apiMatchId": 537379,
+      "utcDate": "2026-07-06T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-3",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R16-6",
+      "round": "R16",
+      "slot": 6,
+      "apiMatchId": 537380,
+      "utcDate": "2026-07-07T00:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-3",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R16-7",
+      "round": "R16",
+      "slot": 7,
+      "apiMatchId": 537381,
+      "utcDate": "2026-07-07T16:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-4",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R16-8",
+      "round": "R16",
+      "slot": 8,
+      "apiMatchId": 537382,
+      "utcDate": "2026-07-07T20:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-4",
+      "feedsSide": "away"
+    },
+    {
+      "id": "QF-1",
+      "round": "QF",
+      "slot": 1,
+      "apiMatchId": 537383,
+      "utcDate": "2026-07-09T20:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "SF-1",
+      "feedsSide": "home"
+    },
+    {
+      "id": "QF-2",
+      "round": "QF",
+      "slot": 2,
+      "apiMatchId": 537384,
+      "utcDate": "2026-07-10T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "SF-1",
+      "feedsSide": "away"
+    },
+    {
+      "id": "QF-3",
+      "round": "QF",
+      "slot": 3,
+      "apiMatchId": 537385,
+      "utcDate": "2026-07-11T21:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "SF-2",
+      "feedsSide": "home"
+    },
+    {
+      "id": "QF-4",
+      "round": "QF",
+      "slot": 4,
+      "apiMatchId": 537386,
+      "utcDate": "2026-07-12T01:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "SF-2",
+      "feedsSide": "away"
+    },
+    {
+      "id": "SF-1",
+      "round": "SF",
+      "slot": 1,
+      "apiMatchId": 537387,
+      "utcDate": "2026-07-14T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "F-1",
+      "feedsSide": "home",
+      "loserFeedsInto": "3P-1",
+      "loserFeedsSide": "home"
+    },
+    {
+      "id": "SF-2",
+      "round": "SF",
+      "slot": 2,
+      "apiMatchId": 537388,
+      "utcDate": "2026-07-15T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "F-1",
+      "feedsSide": "away",
+      "loserFeedsInto": "3P-1",
+      "loserFeedsSide": "away"
+    },
+    {
+      "id": "F-1",
+      "round": "F",
+      "slot": 1,
+      "apiMatchId": 537390,
+      "utcDate": "2026-07-19T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": null,
+      "feedsSide": null
+    },
+    {
+      "id": "3P-1",
+      "round": "3P",
+      "slot": 1,
+      "apiMatchId": 537389,
+      "utcDate": "2026-07-18T21:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": null,
+      "feedsSide": null
+    }
+  ]
+}

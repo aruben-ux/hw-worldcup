@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { matches } from "@/lib/data";
+import { matchByApiId } from "@/lib/data";
 import type { MatchResult, Outcome, ResultsPayload } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -7,45 +7,15 @@ export const dynamic = "force-dynamic";
 const API_URL =
   "https://api.football-data.org/v4/competitions/WC/matches?season=2026";
 
-/** football-data TLA / name -> our sheet code, where they differ. */
+/** football-data TLA -> our code, where they differ. */
 const ALIASES: Record<string, string> = {
-  // by TLA
   SAU: "KSA",
   URY: "URU",
-  // by name
-  "Korea Republic": "KOR",
-  "South Korea": "KOR",
-  "Czech Republic": "CZE",
-  Czechia: "CZE",
-  Türkiye: "TUR",
-  Turkey: "TUR",
-  "Côte d'Ivoire": "CIV",
-  "Ivory Coast": "CIV",
-  "Saudi Arabia": "KSA",
-  "Cape Verde Islands": "CPV",
-  "Cabo Verde": "CPV",
-  "DR Congo": "COD",
-  "Congo DR": "COD",
-  "Bosnia and Herzegovina": "BIH",
-  "Bosnia-Herzegovina": "BIH",
 };
 
-const OUR_CODES = new Set(matches.flatMap((m) => [m.home, m.away]));
-
-function toOurCode(team: { tla?: string; name?: string }): string | null {
-  if (team.tla && OUR_CODES.has(team.tla)) return team.tla;
-  if (team.tla && ALIASES[team.tla]) return ALIASES[team.tla];
-  if (team.name && ALIASES[team.name]) return ALIASES[team.name];
-  return null;
-}
-
-const pairKey = (a: string, b: string) => [a, b].sort().join("-");
-const matchByPair = new Map(matches.map((m) => [pairKey(m.home, m.away), m]));
-
-function outcomeFrom(home: number, away: number): Outcome {
-  if (home > away) return "home";
-  if (away > home) return "away";
-  return "draw";
+function toOurCode(team: { tla?: string | null }): string | null {
+  if (!team.tla) return null;
+  return ALIASES[team.tla] ?? team.tla;
 }
 
 interface ApiMatch {
@@ -53,9 +23,18 @@ interface ApiMatch {
   utcDate: string;
   status: string;
   minute?: string | null;
-  homeTeam: { tla?: string; name?: string };
-  awayTeam: { tla?: string; name?: string };
-  score?: { fullTime?: { home: number | null; away: number | null } };
+  homeTeam: { tla?: string | null };
+  awayTeam: { tla?: string | null };
+  score?: {
+    winner?: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
+    fullTime?: { home: number | null; away: number | null };
+  };
+}
+
+function toStatus(s: string): MatchResult["status"] {
+  if (s === "FINISHED" || s === "AWARDED") return "finished";
+  if (s === "IN_PLAY" || s === "PAUSED") return "live";
+  return "scheduled";
 }
 
 function normalize(apiMatches: ApiMatch[]): {
@@ -64,42 +43,86 @@ function normalize(apiMatches: ApiMatch[]): {
 } {
   const results = new Map<string, MatchResult>();
   const unmatched: string[] = [];
+
   for (const am of apiMatches) {
-    const h = toOurCode(am.homeTeam);
-    const a = toOurCode(am.awayTeam);
-    const sheet = h && a ? matchByPair.get(pairKey(h, a)) : undefined;
-    if (!sheet) {
-      // Knockout matches and TBD placeholders land here; only report
-      // group-stage-looking pairs as a problem.
-      if (h && a) unmatched.push(`${am.homeTeam.name} vs ${am.awayTeam.name}`);
+    const ours = matchByApiId.get(am.id);
+    if (!ours) {
+      unmatched.push(`api#${am.id}`);
       continue;
     }
-    const flipped = sheet.home !== h;
-    const status: MatchResult["status"] =
-      am.status === "FINISHED" || am.status === "AWARDED"
-        ? "finished"
-        : am.status === "IN_PLAY" || am.status === "PAUSED"
-          ? "live"
-          : "scheduled";
+    const status = toStatus(am.status);
+    const hCode = toOurCode(am.homeTeam);
+    const aCode = toOurCode(am.awayTeam);
     const ft = am.score?.fullTime;
     const hasScore =
       status !== "scheduled" && ft != null && ft.home != null && ft.away != null;
-    const scoreHome = hasScore ? (flipped ? ft.away! : ft.home!) : null;
-    const scoreAway = hasScore ? (flipped ? ft.home! : ft.away!) : null;
-    results.set(sheet.id, {
-      matchId: sheet.id,
+
+    // Winner by team code. Prefer the API's score.winner (accounts for
+    // extra time / penalties); fall back to the running score when live.
+    let winnerCode: string | null | undefined;
+    if (status === "finished") {
+      winnerCode =
+        am.score?.winner === "HOME_TEAM"
+          ? hCode
+          : am.score?.winner === "AWAY_TEAM"
+            ? aCode
+            : "DRAW";
+    } else if (hasScore) {
+      winnerCode =
+        ft!.home! > ft!.away!
+          ? hCode
+          : ft!.away! > ft!.home!
+            ? aCode
+            : "DRAW";
+    } else {
+      winnerCode = undefined;
+    }
+
+    // Re-express score and outcome in OUR stored home/away orientation
+    // (group-stage scoring). When our orientation is unknown (unseeded
+    // knockout slot), fall back to the API orientation.
+    const flipped = ours.home != null && aCode === ours.home;
+    const scoreHome = hasScore ? (flipped ? ft!.away! : ft!.home!) : null;
+    const scoreAway = hasScore ? (flipped ? ft!.home! : ft!.away!) : null;
+    let outcome: Outcome | null = null;
+    if (winnerCode !== undefined) {
+      outcome =
+        winnerCode === "DRAW"
+          ? "draw"
+          : winnerCode === ours.home
+            ? "home"
+            : winnerCode === ours.away
+              ? "away"
+              : scoreHome != null && scoreAway != null
+                ? scoreHome > scoreAway
+                  ? "home"
+                  : scoreAway > scoreHome
+                    ? "away"
+                    : "draw"
+                : null;
+    }
+
+    results.set(ours.id, {
+      matchId: ours.id,
       status,
-      outcome: hasScore ? outcomeFrom(scoreHome!, scoreAway!) : null,
-      score: hasScore ? { home: scoreHome!, away: scoreAway! } : null,
+      outcome,
+      score:
+        scoreHome != null && scoreAway != null
+          ? { home: scoreHome, away: scoreAway }
+          : null,
+      homeCode: hCode,
+      awayCode: aCode,
+      winnerCode,
       utcDate: am.utcDate,
       minute: am.minute ?? null,
     });
   }
-  // Every sheet match gets an entry so the client never sees gaps.
-  for (const m of matches) {
-    if (!results.has(m.id)) {
-      results.set(m.id, {
-        matchId: m.id,
+
+  // Every known match gets an entry so the client never sees gaps.
+  for (const [, ours] of matchByApiId) {
+    if (!results.has(ours.id)) {
+      results.set(ours.id, {
+        matchId: ours.id,
         status: "scheduled",
         outcome: null,
         score: null,
