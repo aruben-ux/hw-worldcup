@@ -92,8 +92,27 @@ function eliminatedTeams(slots: Map<string, BracketSlot>): Set<string> {
 export const THIRD_PLACE_PARTICIPANT_POINTS = 4;
 
 /** A real team pick, or null for blank/unresolved entries. */
-const realPick = (v: string | undefined): string | null =>
+export const realPick = (v: string | undefined): string | null =>
   !v || v === "blank" || v === "UNRESOLVED" ? null : v;
+
+/**
+ * For one bracket slot, group entrants by the team they picked to win it:
+ * team code -> sorted list of entrant names. Blank/unresolved picks are
+ * skipped.
+ */
+export function slotPickers(
+  participants: KnockoutParticipant[],
+  slotId: string,
+): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const p of participants) {
+    const code = realPick(p.picks[slotId]);
+    if (!code) continue;
+    (out[code] ??= []).push(p.name);
+  }
+  for (const names of Object.values(out)) names.sort((a, b) => a.localeCompare(b));
+  return out;
+}
 
 const loserOf = (slot: BracketSlot): string | null => {
   const res = slot.result;

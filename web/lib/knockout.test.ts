@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBracket, computeKnockoutStandings } from "./knockout";
+import { buildBracket, computeKnockoutStandings, slotPickers } from "./knockout";
 import { knockoutById } from "./data";
 import type { KnockoutParticipant, MatchResult } from "./types";
 
@@ -51,6 +51,22 @@ describe("buildBracket", () => {
     const slots = buildBracket([live]);
     expect(slots.get("R32-3")!.winner).toBeNull();
     expect(slots.get("R16-2")!.home).toBeNull();
+  });
+});
+
+describe("slotPickers", () => {
+  it("groups entrant names by their pick for a slot, skipping blanks, sorted", () => {
+    const got = slotPickers(
+      [
+        { id: "a", name: "Zoe", picks: { "R32-1": "GER" } },
+        { id: "b", name: "Amy", picks: { "R32-1": "GER" } },
+        { id: "c", name: "Bob", picks: { "R32-1": "PAR" } },
+        { id: "d", name: "Cy", picks: { "R32-1": "blank" } },
+        { id: "e", name: "Di", picks: {} },
+      ],
+      "R32-1",
+    );
+    expect(got).toEqual({ GER: ["Amy", "Zoe"], PAR: ["Bob"] });
   });
 });
 
