@@ -247,6 +247,20 @@ export function computeKnockoutStandings(
   return rows;
 }
 
+/**
+ * The round currently in focus: the earliest round (R32→…→F, ignoring
+ * the third-place match) with a match not yet finished. Returns "F" once
+ * everything is decided. Used as the bracket's default tab.
+ */
+export function currentKnockoutRound(results: MatchResult[]): RoundKey {
+  const slots = buildBracket(results);
+  for (const rk of ["R32", "R16", "QF", "SF", "F"] as RoundKey[]) {
+    const roundSlots = [...slots.values()].filter((s) => s.match.round === rk);
+    if (roundSlots.some((s) => s.result?.status !== "finished")) return rk;
+  }
+  return "F";
+}
+
 export interface TitleContender {
   code: string;
   count: number;

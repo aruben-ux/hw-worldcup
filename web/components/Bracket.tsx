@@ -3,12 +3,27 @@
 import { useState } from "react";
 import { knockoutParticipants, knockoutRounds, teams } from "@/lib/data";
 import { flagUrl } from "@/lib/flags";
-import { buildBracket, slotPickers, type BracketSlot } from "@/lib/knockout";
+import {
+  buildBracket,
+  currentKnockoutRound,
+  slotPickers,
+  type BracketSlot,
+} from "@/lib/knockout";
 import { liveMinute } from "@/lib/liveMinute";
 import type { RoundKey } from "@/lib/types";
 import { useResults } from "./useResults";
 
 const COLUMNS: RoundKey[] = ["R32", "R16", "QF", "SF", "F"];
+
+type View = RoundKey | "ALL";
+const TABS: { key: View; label: string }[] = [
+  { key: "ALL", label: "All" },
+  { key: "R32", label: "R32" },
+  { key: "R16", label: "R16" },
+  { key: "QF", label: "QF" },
+  { key: "SF", label: "Semis" },
+  { key: "F", label: "Final" },
+];
 
 interface Tip {
   label: string;
@@ -41,9 +56,7 @@ function TeamRow({
     const r = e.currentTarget.getBoundingClientRect();
     const TIP_W = 192;
     const right = r.right + 8;
-    // Flip to the chip's left when the tooltip would run off-screen.
-    const x =
-      right + TIP_W > window.innerWidth ? r.left - TIP_W - 8 : right;
+    const x = right + TIP_W > window.innerWidth ? r.left - TIP_W - 8 : right;
     onTip({
       label: `${name} — ${pickers.length} pick${pickers.length === 1 ? "" : "s"}`,
       names: pickers,
@@ -54,7 +67,7 @@ function TeamRow({
 
   return (
     <div
-      className={`flex items-center gap-1.5 px-2 py-1 ${
+      className={`flex items-center gap-1.5 px-1.5 py-1 ${
         isWinner ? "font-black" : dimmed ? "text-hw-gray/50" : "font-medium"
       }`}
     >
@@ -107,7 +120,7 @@ function MatchCard({
 
   return (
     <div
-      className={`w-40 overflow-hidden rounded-md border bg-white text-xs shadow-sm ${
+      className={`w-full overflow-hidden rounded-md border bg-white text-xs shadow-sm ${
         live ? "border-hw-red" : "border-hw-khaki/40"
       }`}
     >
@@ -149,59 +162,101 @@ function MatchCard({
 export default function Bracket() {
   const { payload } = useResults();
   const [tip, setTip] = useState<Tip | null>(null);
+  const [view, setView] = useState<View | null>(null);
   const slots = buildBracket(payload?.results ?? []);
   const matchesByRound = (rk: RoundKey) =>
     [...slots.values()]
       .filter((s) => s.match.round === rk)
       .sort((a, b) => a.match.slot - b.match.slot);
   const now = payload ? Date.parse(payload.fetchedAt) : 0;
-  const thirdPlace = matchesByRound("3P")[0];
+  const roundName = (rk: RoundKey) =>
+    knockoutRounds.find((r) => r.key === rk)?.name ?? rk;
   const pointsFor = (rk: RoundKey) =>
     knockoutRounds.find((r) => r.key === rk)?.points ?? 0;
+
+  // Default to the current round until the user taps a tab.
+  const active: View = view ?? currentKnockoutRound(payload?.results ?? []);
 
   return (
     <div>
       <h1 className="mb-1 text-xl font-black uppercase tracking-tight text-hw-black">
         Knockout Bracket
       </h1>
-      <p className="mb-4 text-xs text-hw-gray">
+      <p className="mb-3 text-xs text-hw-gray">
         Live results. Numbers show how many of the {knockoutParticipants.length}{" "}
         entrants picked each team to win that match — hover or tap to see who.
         Pick points: R32 = 1, R16 = 2, QF = 3, finalist = 5, champion = 7; third
         place = 4 per team + 6 for the winner.
       </p>
-      <div className="overflow-x-auto pb-3">
-        <div className="flex min-w-max gap-3">
-          {COLUMNS.map((rk) => (
-            <div key={rk} className="flex flex-col">
-              <div className="mb-2 text-center text-[11px] font-black uppercase tracking-wide text-hw-gray">
-                {knockoutRounds.find((r) => r.key === rk)?.name}
-                <span className="ml-1 font-semibold text-hw-gold">
-                  {pointsFor(rk)}p
-                </span>
+
+      <div className="mb-4 flex flex-wrap gap-1">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setView(t.key)}
+            className={`rounded-md px-3 py-1 text-xs font-black uppercase tracking-wide ${
+              active === t.key
+                ? "bg-hw-black text-white"
+                : "bg-white text-hw-gray ring-1 ring-hw-khaki/50 hover:bg-hw-cream"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {active === "ALL" ? (
+        // Full tree — break out of the page's max width so it fits desktop.
+        <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-x-auto px-3 pb-3 sm:px-4">
+          <div className="mx-auto flex min-w-max justify-center gap-2">
+            {COLUMNS.map((rk) => (
+              <div key={rk} className="flex flex-col">
+                <div className="mb-2 text-center text-[11px] font-black uppercase tracking-wide text-hw-gray">
+                  {roundName(rk)}
+                  <span className="ml-1 font-semibold text-hw-gold">
+                    {pointsFor(rk)}p
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col justify-around gap-1">
+                  {matchesByRound(rk).map((slot) => (
+                    <div key={slot.match.id} className="w-32">
+                      <MatchCard slot={slot} now={now} onTip={setTip} />
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-1 flex-col justify-around gap-2">
-                {matchesByRound(rk).map((slot) => (
-                  <MatchCard
-                    key={slot.match.id}
-                    slot={slot}
-                    now={now}
-                    onTip={setTip}
-                  />
-                ))}
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="mb-2 text-sm font-black uppercase tracking-wide text-hw-gray">
+            {roundName(active)}
+            <span className="ml-1 text-hw-gold">{pointsFor(active)}p per pick</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {matchesByRound(active).map((slot) => (
+              <MatchCard key={slot.match.id} slot={slot} now={now} onTip={setTip} />
+            ))}
+          </div>
+          {active === "F" && matchesByRound("3P")[0] && (
+            <div className="mt-4">
+              <div className="mb-2 text-sm font-black uppercase tracking-wide text-hw-gray">
+                Third place
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                <MatchCard
+                  slot={matchesByRound("3P")[0]}
+                  now={now}
+                  onTip={setTip}
+                />
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-      {thirdPlace && (
-        <div className="mt-4">
-          <div className="mb-2 text-[11px] font-black uppercase tracking-wide text-hw-gray">
-            Third place
-          </div>
-          <MatchCard slot={thirdPlace} now={now} onTip={setTip} />
+          )}
         </div>
       )}
+
       {tip && (
         <div
           className="pointer-events-none fixed z-50 max-h-64 w-48 -translate-y-1/2 overflow-auto rounded-md border border-hw-khaki bg-white p-2 text-xs shadow-lg"

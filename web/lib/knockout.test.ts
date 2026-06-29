@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBracket,
   computeKnockoutStandings,
+  currentKnockoutRound,
   liveProjection,
   slotPickers,
   titleRace,
@@ -73,6 +74,24 @@ describe("slotPickers", () => {
       "R32-1",
     );
     expect(got).toEqual({ GER: ["Amy", "Zoe"], PAR: ["Bob"] });
+  });
+});
+
+describe("currentKnockoutRound", () => {
+  const r32Ids = Array.from({ length: 16 }, (_, i) => `R32-${i + 1}`);
+
+  it("is R32 when nothing has finished", () => {
+    expect(currentKnockoutRound([])).toBe("R32");
+  });
+
+  it("advances to R16 once every R32 match is finished", () => {
+    const results = r32Ids.map((id) => fin(id, "A", "B", "A"));
+    expect(currentKnockoutRound(results)).toBe("R16");
+  });
+
+  it("returns F when every knockout match is finished", () => {
+    const all = [...knockoutById.keys()].map((id) => fin(id, "A", "B", "A"));
+    expect(currentKnockoutRound(all)).toBe("F");
   });
 });
 
