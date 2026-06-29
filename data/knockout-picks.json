@@ -503,7 +503,7 @@
         "R32-15": "SUI",
         "R32-16": "COL",
         "R16-1": "FRA",
-        "R16-2": "blank",
+        "R16-2": "NED",
         "R16-3": "ESP",
         "R16-4": "BEL",
         "R16-5": "BRA",
@@ -515,11 +515,11 @@
         "QF-3": "BRA",
         "QF-4": "ARG",
         "SF-1": "FRA",
-        "SF-2": "blank",
+        "SF-2": "ARG",
         "F-1": "FRA",
-        "3P-A": "blank",
-        "3P-B": "blank",
-        "3P-1": "blank"
+        "3P-A": "ESP",
+        "3P-B": "BRA",
+        "3P-1": "ESP"
       }
     },
     {
