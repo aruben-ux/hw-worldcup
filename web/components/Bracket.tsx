@@ -12,6 +12,7 @@ import {
   type BracketSlot,
 } from "@/lib/knockout";
 import { liveMinute } from "@/lib/liveMinute";
+import { ptDateShort, ptTime } from "@/lib/datetime";
 import type { RoundKey } from "@/lib/types";
 import { useResults } from "./useResults";
 
@@ -155,10 +156,7 @@ function MatchCard({
           ? liveMinute(result, now)
           : finished
             ? "FT"
-            : new Date(slot.match.utcDate).toLocaleDateString(undefined, {
-                month: "numeric",
-                day: "numeric",
-              })}
+            : `${ptDateShort(slot.match.utcDate)} · ${ptTime(slot.match.utcDate)}`}
       </div>
     </div>
   );

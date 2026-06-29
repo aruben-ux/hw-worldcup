@@ -3,15 +3,9 @@
 import { knockoutRounds } from "@/lib/data";
 import { buildBracket, ROUND_ORDER, type BracketSlot } from "@/lib/knockout";
 import { liveMinute } from "@/lib/liveMinute";
+import { ptDateLong, ptDayKey, ptTime } from "@/lib/datetime";
 import { ScoreBadge, TeamLabel } from "./MatchLine";
 import { useResults } from "./useResults";
-
-const DATE_FMT = new Intl.DateTimeFormat("en-US", {
-  weekday: "short",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
 
 export default function KnockoutSchedule() {
   const { payload } = useResults();
@@ -20,10 +14,10 @@ export default function KnockoutSchedule() {
   const roundName = (k: string) =>
     knockoutRounds.find((r) => r.key === k)?.name ?? k;
 
-  // Group slots by calendar date (UTC), days in chronological order.
+  // Group slots by Pacific calendar day, in chronological order.
   const byDate = new Map<string, BracketSlot[]>();
   for (const slot of slots.values()) {
-    const date = slot.match.utcDate.slice(0, 10);
+    const date = ptDayKey(slot.match.utcDate);
     if (!byDate.has(date)) byDate.set(date, []);
     byDate.get(date)!.push(slot);
   }
@@ -34,7 +28,7 @@ export default function KnockoutSchedule() {
       {days.map(([date, daySlots]) => (
         <section key={date} className="rounded-lg bg-white p-3 shadow">
           <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-hw-black">
-            {DATE_FMT.format(new Date(`${date}T12:00:00Z`))}
+            {ptDateLong(daySlots[0].match.utcDate)}
           </h3>
           <ul className="divide-y divide-hw-khaki/25">
             {daySlots
@@ -68,12 +62,19 @@ export default function KnockoutSchedule() {
                         <span className="text-hw-gray/50">TBD</span>
                       )}
                     </span>
-                    <span className="w-16 text-right text-[11px] text-hw-gray/70">
-                      {r?.status === "live"
-                        ? liveMinute(r, now)
-                        : r?.status === "finished"
-                          ? "FT"
-                          : roundName(slot.match.round)}
+                    <span className="w-20 text-right text-[11px] text-hw-gray/70">
+                      {r?.status === "live" ? (
+                        liveMinute(r, now)
+                      ) : r?.status === "finished" ? (
+                        "FT"
+                      ) : (
+                        <span className="flex flex-col leading-tight">
+                          <span>{ptTime(slot.match.utcDate)}</span>
+                          <span className="text-[9px] uppercase text-hw-gray/50">
+                            {roundName(slot.match.round)}
+                          </span>
+                        </span>
+                      )}
                     </span>
                   </li>
                 );
