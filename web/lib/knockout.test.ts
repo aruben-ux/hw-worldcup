@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildBracket, computeKnockoutStandings, slotPickers } from "./knockout";
+import {
+  buildBracket,
+  computeKnockoutStandings,
+  liveProjection,
+  slotPickers,
+  titleRace,
+} from "./knockout";
 import { knockoutById } from "./data";
 import type { KnockoutParticipant, MatchResult } from "./types";
 
@@ -67,6 +73,70 @@ describe("slotPickers", () => {
       "R32-1",
     );
     expect(got).toEqual({ GER: ["Amy", "Zoe"], PAR: ["Bob"] });
+  });
+});
+
+describe("titleRace", () => {
+  const players = [
+    { id: "a", name: "Ann", picks: { "F-1": "FRA" } },
+    { id: "b", name: "Bo", picks: { "F-1": "FRA" } },
+    { id: "c", name: "Cy", picks: { "F-1": "BRA" } },
+  ];
+
+  it("groups by champion pick, sorted by backers", () => {
+    const race = titleRace(players, []);
+    expect(race.map((c) => [c.code, c.count])).toEqual([
+      ["FRA", 2],
+      ["BRA", 1],
+    ]);
+    expect(race[0].alive).toBe(true);
+    expect(race[0].isChampion).toBe(false);
+  });
+
+  it("marks a backed team eliminated when it loses, alive-first ordering", () => {
+    // R32-9 BRA/JPN: JPN beats BRA, so BRA (a title pick) is out.
+    const race = titleRace(players, [fin("R32-9", "BRA", "JPN", "JPN")]);
+    const bra = race.find((c) => c.code === "BRA")!;
+    expect(bra.alive).toBe(false);
+    expect(race[race.length - 1].code).toBe("BRA"); // sorts after alive picks
+  });
+
+  it("flags the actual champion once the final is decided", () => {
+    const race = titleRace(players, [fin("F-1", "FRA", "ARG", "FRA")]);
+    expect(race.find((c) => c.code === "FRA")!.isChampion).toBe(true);
+  });
+});
+
+describe("liveProjection", () => {
+  const live = (id: string, home: string, away: string, leader: string) => ({
+    matchId: id,
+    status: "live" as const,
+    outcome: null,
+    score: { home: 1, away: 0 },
+    homeCode: home,
+    awayCode: away,
+    winnerCode: leader,
+  });
+
+  it("projects a climb from live points and a matching drop", () => {
+    // Ann leads on banked points (2-1); Bo is winning two live matches.
+    const standings = computeKnockoutStandings(
+      [
+        { id: "a", name: "Ann", picks: { "R32-1": "GER", "R32-2": "FRA" } },
+        { id: "b", name: "Bo", picks: { "R32-1": "GER", "R32-9": "BRA", "R32-10": "NOR" } },
+      ],
+      [
+        fin("R32-1", "GER", "PAR", "GER"),
+        fin("R32-2", "FRA", "SWE", "FRA"),
+        live("R32-9", "BRA", "JPN", "BRA"),
+        live("R32-10", "CIV", "NOR", "NOR"),
+      ],
+    );
+    expect(standings.find((r) => r.id === "a")!.rank).toBe(1); // banked
+    const proj = liveProjection(standings);
+    // Bo (1 + 2 live = 3) projects 1st (up 1); Ann (2) drops to 2nd.
+    expect(proj.get("b")).toEqual({ projectedRank: 1, delta: 1 });
+    expect(proj.get("a")).toEqual({ projectedRank: 2, delta: -1 });
   });
 });
 

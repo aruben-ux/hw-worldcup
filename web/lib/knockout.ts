@@ -74,7 +74,7 @@ export function buildBracket(results: MatchResult[]): Map<string, BracketSlot> {
 }
 
 /** Teams eliminated by a decided knockout loss (for max-possible bounds). */
-function eliminatedTeams(slots: Map<string, BracketSlot>): Set<string> {
+export function eliminatedTeams(slots: Map<string, BracketSlot>): Set<string> {
   const out = new Set<string>();
   for (const slot of slots.values()) {
     const res = slot.result;
@@ -245,4 +245,75 @@ export function computeKnockoutStandings(
     }
   });
   return rows;
+}
+
+export interface TitleContender {
+  code: string;
+  count: number;
+  names: string[];
+  alive: boolean;
+  isChampion: boolean;
+}
+
+/**
+ * The champion race: entrants grouped by their title pick (F-1), each
+ * team marked alive/eliminated, and the actual champion flagged once the
+ * final is decided. Sorted by backers desc, alive first, then team code.
+ */
+export function titleRace(
+  participants: KnockoutParticipant[],
+  results: MatchResult[],
+): TitleContender[] {
+  const slots = buildBracket(results);
+  const eliminated = eliminatedTeams(slots);
+  const final = slots.get("F-1");
+  const champion = final?.winner ?? null;
+  const byTeam = slotPickers(participants, "F-1");
+
+  return Object.entries(byTeam)
+    .map(([code, names]) => ({
+      code,
+      names,
+      count: names.length,
+      alive: !eliminated.has(code),
+      isChampion: champion === code,
+    }))
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        Number(b.alive) - Number(a.alive) ||
+        a.code.localeCompare(b.code),
+    );
+}
+
+export interface LiveMove {
+  projectedRank: number;
+  delta: number;
+}
+
+/**
+ * Projected standings if current live results held: rank by
+ * points + livePoints (same tiebreaks as the real ranking). delta is
+ * current rank minus projected rank (positive = climbing).
+ */
+export function liveProjection(
+  standings: StandingRow[],
+): Map<string, LiveMove> {
+  const proj = [...standings].sort(
+    (a, b) =>
+      b.points + b.livePoints - (a.points + a.livePoints) ||
+      b.maxPossible - a.maxPossible ||
+      a.name.localeCompare(b.name),
+  );
+  const out = new Map<string, LiveMove>();
+  let prevTotal = Number.NaN;
+  let prevRank = 0;
+  proj.forEach((row, i) => {
+    const total = row.points + row.livePoints;
+    const projectedRank = total === prevTotal ? prevRank : i + 1;
+    prevRank = projectedRank;
+    prevTotal = total;
+    out.set(row.id, { projectedRank, delta: row.rank - projectedRank });
+  });
+  return out;
 }

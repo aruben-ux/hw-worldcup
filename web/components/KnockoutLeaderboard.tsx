@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { knockoutParticipants } from "@/lib/data";
-import { computeKnockoutStandings } from "@/lib/knockout";
+import {
+  computeKnockoutStandings,
+  liveProjection,
+  titleRace,
+} from "@/lib/knockout";
+import TitleRace from "./TitleRace";
 import { useResults } from "./useResults";
 
 export default function KnockoutLeaderboard() {
@@ -34,12 +39,28 @@ export default function KnockoutLeaderboard() {
 
   const standings = computeKnockoutStandings(knockoutParticipants, results);
   const anyLive = results.some((r) => r.status === "live");
+  const contenders = titleRace(knockoutParticipants, results);
+  const moves = anyLive ? liveProjection(standings) : null;
+  const topMover = moves
+    ? standings
+        .map((r) => ({ row: r, mv: moves.get(r.id)! }))
+        .filter((x) => x.mv.delta > 0)
+        .sort((a, b) => b.mv.delta - a.mv.delta || b.row.livePoints - a.row.livePoints)[0]
+    : undefined;
 
   return (
     <div>
       {error && (
         <p className="mb-3 rounded-md bg-hw-red/10 px-3 py-2 text-sm font-semibold text-hw-red">
           Couldn&apos;t refresh results: {error}
+        </p>
+      )}
+      <TitleRace contenders={contenders} />
+      {topMover && (
+        <p className="mb-3 rounded-md bg-hw-green/15 px-3 py-2 text-sm text-green-900">
+          <span className="font-black">▲ Biggest live mover:</span>{" "}
+          {topMover.row.name} (+{topMover.row.livePoints}, up {topMover.mv.delta}{" "}
+          {topMover.mv.delta === 1 ? "spot" : "spots"})
         </p>
       )}
       <div className="overflow-hidden rounded-lg bg-white shadow">
@@ -54,15 +75,35 @@ export default function KnockoutLeaderboard() {
             </tr>
           </thead>
           <tbody>
-            {standings.map((row, i) => (
+            {standings.map((row, i) => {
+              const mv = moves?.get(row.id);
+              return (
               <tr
                 key={row.id}
                 className={`border-t border-hw-khaki/30 ${
-                  row.rank === 1 ? "bg-hw-gold/15" : i % 2 ? "bg-hw-cream/50" : ""
+                  row.rank === 1
+                    ? "bg-hw-gold/15"
+                    : mv && row.livePoints > 0
+                      ? "bg-hw-green/10"
+                      : i % 2
+                        ? "bg-hw-cream/50"
+                        : ""
                 }`}
               >
                 <td className="px-3 py-2 text-center font-bold text-hw-gray/70">
-                  {row.rank}
+                  <span className="inline-flex items-center gap-1">
+                    {row.rank}
+                    {mv && mv.delta > 0 && (
+                      <span className="text-[10px] font-black text-hw-green">
+                        ▲{mv.delta}
+                      </span>
+                    )}
+                    {mv && mv.delta < 0 && (
+                      <span className="text-[10px] font-black text-hw-red">
+                        ▼{-mv.delta}
+                      </span>
+                    )}
+                  </span>
                 </td>
                 <td className="px-2 py-2">
                   <Link
@@ -84,10 +125,17 @@ export default function KnockoutLeaderboard() {
                   {row.maxPossible}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
+      {anyLive && (
+        <p className="mt-3 text-xs font-semibold text-hw-gray">
+          ▲▼ shows where each entrant would move if the current live scores
+          held. Standings stay sorted by banked points until matches finish.
+        </p>
+      )}
       <p className="mt-3 text-xs text-hw-gray/80">
         Sheet scoring: R32 = 1, R16 = 2, QF = 3, finalist = 5, champion = 7;
         third place = 4 per correct team and 6 for the winner. A pick scores only
