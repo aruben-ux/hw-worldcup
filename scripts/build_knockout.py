@@ -36,6 +36,14 @@ ROUNDS = [
 ]
 NEXT = {"R32": "R16", "R16": "QF", "QF": "SF", "SF": "F"}
 
+# football-data assigns knockout match ids in FIFA match-number order. For
+# most rounds that lines up with our slot numbering, but the Round of 16
+# interleaves the two bracket halves (M89,M90 left → M91,M92 right →
+# M93,M94 left → M95,M96 right). So the i-th R16 fixture (sorted by id)
+# maps to these slots, NOT 1..8 in order. Confirmed live: the BRA/JPN
+# winner (R32-9) lands in the 3rd R16 fixture, i.e. our slot R16-5.
+SLOT_ORDER = {"R16": [1, 2, 5, 6, 3, 4, 7, 8]}
+
 
 def code(team: dict | None) -> str | None:
     if not team:
@@ -68,7 +76,8 @@ def main() -> None:
         fixtures = sorted(by_stage[rnd["stage"]], key=lambda m: m["id"])
         if len(fixtures) != rnd["count"]:
             raise ValueError(f"{rnd['key']}: expected {rnd['count']} matches, got {len(fixtures)}")
-        for slot, am in enumerate(fixtures, 1):
+        order = SLOT_ORDER.get(rnd["key"], list(range(1, rnd["count"] + 1)))
+        for am, slot in zip(fixtures, order):
             feeds_into = feeds_side = None
             if rnd["key"] in NEXT:
                 nxt = NEXT[rnd["key"]]

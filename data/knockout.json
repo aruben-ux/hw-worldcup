@@ -232,33 +232,11 @@
       "feedsSide": "away"
     },
     {
-      "id": "R16-3",
-      "round": "R16",
-      "slot": 3,
-      "apiMatchId": 537377,
-      "utcDate": "2026-07-05T20:00:00Z",
-      "home": null,
-      "away": null,
-      "feedsInto": "QF-2",
-      "feedsSide": "home"
-    },
-    {
-      "id": "R16-4",
-      "round": "R16",
-      "slot": 4,
-      "apiMatchId": 537378,
-      "utcDate": "2026-07-06T00:00:00Z",
-      "home": null,
-      "away": null,
-      "feedsInto": "QF-2",
-      "feedsSide": "away"
-    },
-    {
       "id": "R16-5",
       "round": "R16",
       "slot": 5,
-      "apiMatchId": 537379,
-      "utcDate": "2026-07-06T19:00:00Z",
+      "apiMatchId": 537377,
+      "utcDate": "2026-07-05T20:00:00Z",
       "home": null,
       "away": null,
       "feedsInto": "QF-3",
@@ -268,11 +246,33 @@
       "id": "R16-6",
       "round": "R16",
       "slot": 6,
+      "apiMatchId": 537378,
+      "utcDate": "2026-07-06T00:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-3",
+      "feedsSide": "away"
+    },
+    {
+      "id": "R16-3",
+      "round": "R16",
+      "slot": 3,
+      "apiMatchId": 537379,
+      "utcDate": "2026-07-06T19:00:00Z",
+      "home": null,
+      "away": null,
+      "feedsInto": "QF-2",
+      "feedsSide": "home"
+    },
+    {
+      "id": "R16-4",
+      "round": "R16",
+      "slot": 4,
       "apiMatchId": 537380,
       "utcDate": "2026-07-07T00:00:00Z",
       "home": null,
       "away": null,
-      "feedsInto": "QF-3",
+      "feedsInto": "QF-2",
       "feedsSide": "away"
     },
     {

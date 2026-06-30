@@ -58,6 +58,9 @@ export function buildBracket(results: MatchResult[]): Map<string, BracketSlot> {
         if (!destId || !side || !team) return;
         const dest = slots.get(destId);
         if (!dest) return;
+        // Never place a team that's already shown on either side (guards
+        // against duplicates if the API has populated the slot already).
+        if (dest.home === team || dest.away === team) return;
         // Don't override a team the API already placed.
         if (side === "home" && dest.home == null) dest.home = team;
         if (side === "away" && dest.away == null) dest.away = team;
