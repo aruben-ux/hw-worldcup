@@ -8,6 +8,19 @@
       "cwd": "web",
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "neptune-api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "C:/Users/aruben/Neptune-Gradebook/apps/api"],
+      "port": 4000
+    },
+    {
+      "name": "neptune-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "C:/Users/aruben/Neptune-Gradebook/apps/web"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

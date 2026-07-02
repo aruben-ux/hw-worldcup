@@ -50,12 +50,24 @@ function normalize(apiMatches: ApiMatch[]): {
       unmatched.push(`api#${am.id}`);
       continue;
     }
-    const status = toStatus(am.status);
     const hCode = toOurCode(am.homeTeam);
     const aCode = toOurCode(am.awayTeam);
     const ft = am.score?.fullTime;
-    const hasScore =
-      status !== "scheduled" && ft != null && ft.home != null && ft.away != null;
+    const hasScoreVals = ft != null && ft.home != null && ft.away != null;
+
+    // The football-data free tier often keeps status "TIMED" while it
+    // updates the running score, so a live match never flips to IN_PLAY.
+    // Treat any not-finished match that already has a score and whose
+    // kickoff has passed as live, so scores show during the game.
+    const raw = toStatus(am.status);
+    const kickedOff = Date.now() >= Date.parse(am.utcDate);
+    const status: MatchResult["status"] =
+      raw === "finished"
+        ? "finished"
+        : raw === "live" || (hasScoreVals && kickedOff)
+          ? "live"
+          : "scheduled";
+    const hasScore = status !== "scheduled" && hasScoreVals;
 
     // Winner by team code. Prefer the API's score.winner (accounts for
     // extra time / penalties); fall back to the running score when live.
